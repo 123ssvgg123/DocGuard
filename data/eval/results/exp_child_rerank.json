@@ -1,0 +1,211 @@
+{
+  "summary": {
+    "n": 20,
+    "sent_recall": 0.6892,
+    "full_hit_rate": 0.55,
+    "avg_best_sim": 0.8188,
+    "avg_latency_s": 10.0055
+  },
+  "per_sample": [
+    {
+      "question": "冷鲜肉的冷藏温度要求是多少？",
+      "sent_recall": 1.0,
+      "best": 0.896,
+      "n_ctx": 5,
+      "sec": 13.05,
+      "sub_scores": [
+        0.963
+      ]
+    },
+    {
+      "question": "餐饮服务从业人员健康证多久检查一次？",
+      "sent_recall": 1.0,
+      "best": 0.833,
+      "n_ctx": 5,
+      "sec": 11.47,
+      "sub_scores": [
+        0.991
+      ]
+    },
+    {
+      "question": "食品添加剂的使用应该遵循什么原则？",
+      "sent_recall": 1.0,
+      "best": 0.897,
+      "n_ctx": 5,
+      "sec": 8.7,
+      "sub_scores": [
+        0.997
+      ]
+    },
+    {
+      "question": "生熟食品为什么要分开存放？",
+      "sent_recall": 1.0,
+      "best": 0.759,
+      "n_ctx": 5,
+      "sec": 10.54,
+      "sub_scores": [
+        0.979
+      ]
+    },
+    {
+      "question": "餐具消毒后应如何存放？",
+      "sent_recall": 1.0,
+      "best": 0.948,
+      "n_ctx": 5,
+      "sec": 3.15,
+      "sub_scores": [
+        0.998
+      ]
+    },
+    {
+      "question": "顾客反映吃完后出现呕吐腹泻，门店应该怎么处理？",
+      "sent_recall": 0.75,
+      "best": 0.846,
+      "n_ctx": 5,
+      "sec": 11.89,
+      "sub_scores": [
+        0.991
+      ]
+    },
+    {
+      "question": "发现采购的蔬菜农药残留超标应该怎么处置？",
+      "sent_recall": 0.5,
+      "best": 0.778,
+      "n_ctx": 5,
+      "sec": 3.7,
+      "sub_scores": [
+        0.996
+      ]
+    },
+    {
+      "question": "叶类蔬菜的维生素含量特点是什么？",
+      "sent_recall": 0.0,
+      "best": 0.666,
+      "n_ctx": 5,
+      "sec": 3.36,
+      "sub_scores": [
+        0.038
+      ]
+    },
+    {
+      "question": "供应商资质应该查验哪些证件？",
+      "sent_recall": 1.0,
+      "best": 0.81,
+      "n_ctx": 5,
+      "sec": 3.28,
+      "sub_scores": [
+        0.954
+      ]
+    },
+    {
+      "question": "进货查验记录应该保存多久？",
+      "sent_recall": 0.5,
+      "best": 0.78,
+      "n_ctx": 5,
+      "sec": 11.96,
+      "sub_scores": [
+        0.912
+      ]
+    },
+    {
+      "question": "食品从业人员洗手有什么具体要求？",
+      "sent_recall": 1.0,
+      "best": 0.949,
+      "n_ctx": 5,
+      "sec": 11.87,
+      "sub_scores": [
+        0.989
+      ]
+    },
+    {
+      "question": "这肉闻着有点怪还能用吗？",
+      "sent_recall": 0.3333,
+      "best": 0.769,
+      "n_ctx": 5,
+      "sec": 11.85,
+      "sub_scores": [
+        0.146
+      ]
+    },
+    {
+      "question": "凉菜制作间有什么特殊卫生要求？",
+      "sent_recall": 1.0,
+      "best": 0.857,
+      "n_ctx": 5,
+      "sec": 11.83,
+      "sub_scores": [
+        0.982
+      ]
+    },
+    {
+      "question": "开一家火锅店需要满足哪些食品安全条件？",
+      "sent_recall": 0.5,
+      "best": 0.786,
+      "n_ctx": 5,
+      "sec": 12.02,
+      "sub_scores": [
+        0.816
+      ]
+    },
+    {
+      "question": "食品留样有什么要求？",
+      "sent_recall": 1.0,
+      "best": 0.907,
+      "n_ctx": 5,
+      "sec": 11.93,
+      "sub_scores": [
+        0.978
+      ]
+    },
+    {
+      "question": "解冻食品应该采用什么方式？",
+      "sent_recall": 1.0,
+      "best": 0.877,
+      "n_ctx": 5,
+      "sec": 11.95,
+      "sub_scores": [
+        0.934
+      ]
+    },
+    {
+      "question": "食用油反复加热使用会有什么风险？",
+      "sent_recall": 0.0,
+      "best": 0.623,
+      "n_ctx": 5,
+      "sec": 11.91,
+      "sub_scores": [
+        0.007
+      ]
+    },
+    {
+      "question": "食品贮存应该做到哪些基本要求？",
+      "sent_recall": 0.2,
+      "best": 0.752,
+      "n_ctx": 5,
+      "sec": 12.1,
+      "sub_scores": [
+        0.998
+      ]
+    },
+    {
+      "question": "餐具消毒方式有哪些？",
+      "sent_recall": 1.0,
+      "best": 0.91,
+      "n_ctx": 5,
+      "sec": 11.88,
+      "sub_scores": [
+        0.911
+      ]
+    },
+    {
+      "question": "食品经营者发现不合格食品应该怎么处理？",
+      "sent_recall": 0.0,
+      "best": 0.733,
+      "n_ctx": 5,
+      "sec": 11.67,
+      "sub_scores": [
+        0.973
+      ]
+    }
+  ]
+}

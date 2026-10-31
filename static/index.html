@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食安通 · 食品安全知识库系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #1f6b52;
+            --primary-dark: #17513e;
+            --primary-light: #e8f3ef;
+            --accent: #b3462f;
+            --bg: #f5f7f6;
+            --panel: #ffffff;
+            --text: #23302b;
+            --text-muted: #66756e;
+            --border: #dde5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+            background: var(--bg); color: var(--text);
+            height: 100vh; display: flex; flex-direction: column;
+        }
+        header {
+            background: var(--primary); color: #fff;
+            padding: 14px 24px; display: flex; align-items: center;
+            justify-content: space-between; flex-shrink: 0;
+        }
+        header h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.5px; }
+        header .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+        header .kb-count { font-size: 12px; opacity: 0.9; }
+
+        .toolbar {
+            background: var(--panel); border-bottom: 1px solid var(--border);
+            padding: 10px 24px; display: flex; gap: 10px; align-items: center;
+            flex-wrap: wrap; flex-shrink: 0;
+        }
+        .toolbar label { font-size: 12.5px; color: var(--text-muted); }
+        select, button {
+            font-family: inherit; font-size: 13px;
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 7px 12px; background: #fff; color: var(--text); cursor: pointer;
+        }
+        select:focus, button:focus { outline: 2px solid var(--primary-light); }
+        button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+        button.primary:hover { background: var(--primary-dark); }
+        button.ghost:hover { background: var(--primary-light); }
+
+        .chat { flex: 1; overflow-y: auto; padding: 20px 24px; }
+        .chat-inner { max-width: 900px; margin: 0 auto; }
+        .msg { display: flex; margin-bottom: 18px; gap: 10px; }
+        .msg.user { flex-direction: row-reverse; }
+        .avatar {
+            width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; color: #fff;
+        }
+        .avatar.bot { background: var(--primary); }
+        .avatar.me { background: #6b7d75; }
+        .bubble {
+            max-width: 78%; padding: 12px 15px; border-radius: 10px;
+            font-size: 14px; line-height: 1.75; word-break: break-word;
+        }
+        .msg.bot .bubble { background: var(--panel); border: 1px solid var(--border); }
+        .msg.user .bubble { background: var(--primary-light); border: 1px solid #cfe3db; }
+        .bubble p { margin: 6px 0; }
+        .bubble ul, .bubble ol { margin: 6px 0 6px 20px; }
+        .bubble code { background: #eef2f0; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+        .bubble strong { color: var(--primary-dark); }
+
+        .sources { margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 10px; }
+        .sources .t { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+        .src {
+            font-size: 12px; background: #f7faf8; border: 1px solid var(--border);
+            border-radius: 6px; padding: 7px 10px; margin-bottom: 6px;
+        }
+        .src .name { font-weight: 600; color: var(--primary-dark); }
+        .src .meta { color: var(--text-muted); font-size: 11.5px; }
+        .src .snip { color: #4a5a53; margin-top: 3px; }
+
+        .hint { text-align: center; color: var(--text-muted); font-size: 13px; padding: 40px 0; }
+        .samples { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+        .samples span {
+            font-size: 12.5px; padding: 7px 13px; border-radius: 16px;
+            background: #fff; border: 1px solid var(--border); cursor: pointer; color: var(--primary-dark);
+        }
+        .samples span:hover { background: var(--primary-light); }
+
+        .composer {
+            background: var(--panel); border-top: 1px solid var(--border);
+            padding: 12px 24px; flex-shrink: 0;
+        }
+        .composer-inner { max-width: 900px; margin: 0 auto; display: flex; gap: 10px; }
+        textarea {
+            flex: 1; resize: none; font-family: inherit; font-size: 14px;
+            padding: 11px 13px; border: 1px solid var(--border); border-radius: 8px;
+            height: 46px; line-height: 1.4; color: var(--text);
+        }
+        textarea:focus { outline: 2px solid var(--primary-light); border-color: var(--primary); }
+        .cursor-blink { display: inline-block; width: 7px; height: 15px; background: var(--primary); vertical-align: middle; animation: blink 1s infinite; }
+        @keyframes blink { 0%,50% { opacity: 1 } 51%,100% { opacity: 0 } }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>食安通 · 食品安全知识库系统</h1>
+            <div class="sub">法规标准 · SOP 规范 · 事故处置 · 营养学 · 供应商资质 · 全量 FAQ</div>
+        </div>
+        <div class="kb-count" id="kbInfo">知识库加载中…</div>
+    </header>
+
+    <div class="toolbar">
+        <label for="kbSelect">检索范围</label>
+        <select id="kbSelect">
+            <option value="">全部知识库</option>
+            <option value="regulation">法规标准库</option>
+            <option value="sop">SOP 规范库</option>
+            <option value="case">事故处置案例库</option>
+            <option value="nutrition">营养学知识库</option>
+            <option value="supplier">供应商资质库</option>
+            <option value="faq">FAQ 问答库</option>
+        </select>
+        <button class="ghost" id="clearBtn">清空对话</button>
+    </div>
+
+    <div class="chat" id="chat">
+        <div class="chat-inner" id="chatInner">
+            <div class="hint" id="hint">
+                请输入食品安全相关问题，例如原料验收、温度标准、留样规范、事故处置流程
+                <div class="samples">
+                    <span>这批鸡胸肉到货温度8℃还能用吗</span>
+                    <span>冰箱冷藏温度标准是多少</span>
+                    <span>食品留样要留多少克留多久</span>
+                    <span>顾客说吃了肚子疼怎么处理</span>
+                    <span>开火锅店要满足哪些食品安全条件</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="composer">
+        <div class="composer-inner">
+            <textarea id="input" placeholder="输入问题后按 Enter 发送，Shift+Enter 换行"></textarea>
+            <button class="primary" id="sendBtn">发送</button>
+        </div>
+    </div>
+
+    <script>
+        const chatInner = document.getElementById('chatInner');
+        const chatBox = document.getElementById('chat');
+        const input = document.getElementById('input');
+        const sendBtn = document.getElementById('sendBtn');
+        const kbSelect = document.getElementById('kbSelect');
+        const clearBtn = document.getElementById('clearBtn');
+        const hint = document.getElementById('hint');
+        let sessionId = null;
+        let ws = null;
+        let streaming = false;
+
+        const KB_NAMES = {
+            regulation: '法规标准库', sop: 'SOP 规范库', case: '事故处置案例库',
+            nutrition: '营养学知识库', supplier: '供应商资质库', faq: 'FAQ 问答库'
+        };
+
+        async function init() {
+            try {
+                const r = await fetch('/api/create_session', { method: 'POST' });
+                sessionId = (await r.json()).session_id;
+            } catch (e) { sessionId = 'local-' + Date.now(); }
+            try {
+                const r = await fetch('/api/kb_types');
+                const d = await r.json();
+                document.getElementById('kbInfo').textContent = '知识库 ' + d.kb_types.length + ' 类 · 服务正常';
+            } catch (e) { document.getElementById('kbInfo').textContent = ''; }
+        }
+        init();
+
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function addMsg(role, html) {
+            if (hint) hint.style.display = 'none';
+            const div = document.createElement('div');
+            div.className = 'msg ' + role;
+            div.innerHTML = '<div class="avatar ' + (role === 'user' ? 'me' : 'bot') + '">' +
+                (role === 'user' ? '我' : 'AI') + '</div><div class="bubble">' + html + '</div>';
+            chatInner.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return div.querySelector('.bubble');
+        }
+
+        function renderSources(sources) {
+            if (!sources || !sources.length) return '';
+            let h = '<div class="sources"><div class="t">引用来源（共 ' + sources.length + ' 条）</div>';
+            sources.forEach(function (s) {
+                const kb = KB_NAMES[s.kb_type] || s.kb_type || '未知';
+                h += '<div class="src"><div class="name">' + esc(s.file_name || '未知文件') + '</div>' +
+                     '<div class="meta">' + esc(kb) + ' · 相关度 ' + (s.score || 0) + '</div>' +
+                     '<div class="snip">' + esc((s.snippet || '').slice(0, 120)) + '…</div></div>';
+            });
+            return h + '</div>';
+        }
+
+        function appendSources(bubble, sources) {
+            if (!sources || !sources.length) return;
+            bubble.insertAdjacentHTML('beforeend', renderSources(sources));
+        }
+
+        function send() {
+            const q = input.value.trim();
+            if (!q || streaming) return;
+            input.value = '';
+            addMsg('user', esc(q));
+
+            const bubble = addMsg('bot', '<span class="cursor-blink"></span>');
+            let buffer = '';
+            streaming = true;
+            sendBtn.disabled = true;
+
+            const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+            ws = new WebSocket(proto + '://' + location.host + '/api/stream');
+
+            ws.onopen = function () {
+                ws.send(JSON.stringify({ query: q, kb_type: kbSelect.value || null, session_id: sessionId }));
+            };
+            ws.onmessage = function (ev) {
+                const msg = JSON.parse(ev.data);
+                if (msg.type === 'token') {
+                    buffer += msg.token;
+                    bubble.innerHTML = marked.parse(buffer) + '<span class="cursor-blink"></span>';
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } else if (msg.type === 'end') {
+                    bubble.innerHTML = marked.parse(buffer || '未获取到回答');
+                    appendSources(bubble, msg.sources);
+                    finish();
+                } else if (msg.type === 'error') {
+                    bubble.innerHTML = '<span style="color:#b3462f">请求出错：' + esc(msg.error) + '</span>';
+                    finish();
+                }
+            };
+            ws.onerror = function () {
+                bubble.innerHTML = '<span style="color:#b3462f">连接失败，请确认服务已启动。</span>';
+                finish();
+            };
+            ws.onclose = function () { if (streaming) finish(); };
+        }
+
+        function finish() {
+            streaming = false;
+            sendBtn.disabled = false;
+            try { ws && ws.close(); } catch (e) {}
+            ws = null;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        sendBtn.onclick = send;
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+        });
+        document.querySelectorAll('.samples span').forEach(function (el) {
+            el.onclick = function () { input.value = el.textContent; send(); };
+        });
+        clearBtn.onclick = async function () {
+            if (sessionId) {
+                try { await fetch('/api/history/' + sessionId, { method: 'DELETE' }); } catch (e) {}
+            }
+            chatInner.innerHTML = '';
+            chatInner.appendChild(hint);
+            hint.style.display = '';
+        };
+    </script>
+</body>
+</html>

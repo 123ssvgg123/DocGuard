@@ -1,0 +1,144 @@
+# ============================================================
+#  食安通 · 食品安全知识库系统 —— 一键编排
+# ============================================================
+#  起四个容器：
+#      etcd / minio  Milvus 的元数据与对象存储依赖
+#      milvus       向量库（食安通的硬依赖，必须先就绪）
+#      redis        可选缓存（config.ini 的 [redis] enabled=false 时不接也无妨）
+#      app          食安通服务本体
+#
+#  用法（在本目录执行）：
+#      docker compose up -d
+#      docker compose logs -f app
+#      docker compose down
+#
+#  ⚠️ 两个前置条件：
+#      1) 宿主机项目根目录下要有 models/（bge-m3 / bge-reranker-large），
+#         本文件用 ../.. 挂载；镜像里不含模型。
+#      2) 首次启动后需要执行一次建库（数据库里还没有向量）：
+#         docker compose exec app python build_kb.py --rebuild
+#
+#  与 FoodAgent 的配合：
+#      食安通起来后（/health 返回 healthy）再启动 FoodAgent（:8090），
+#      FoodAgent 只在启动期探活一次，顺序反了会降级为内置知识库。
+#      若两个服务都容器化，FoodAgent 的 FSS_BASE_URL 应指向 http://foodsafety-app:8080
+#      并让两个 compose 使用同一个 network。
+# ============================================================
+
+services:
+  etcd:
+    container_name: foodsafety-etcd
+    image: quay.io/coreos/etcd:v3.5.14
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio:
+    container_name: foodsafety-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    volumes:
+      - minio_data:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus:
+    container_name: foodsafety-milvus
+    image: milvusdb/milvus:v2.5.4
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - milvus_data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - etcd
+      - minio
+
+  redis:
+    container_name: foodsafety-redis
+    image: redis:7-alpine
+    # 与本机既有 Redis 用端口 + db 双重隔离：食安通用 db1，FoodAgent 用 db2
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-123456}", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-123456}", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  app:
+    container_name: foodsafety-app
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        # 有 NVIDIA 容器运行时、想让检索跑 GPU 时改这里：
+        #   TORCH_INDEX_URL: https://download.pytorch.org/whl/cu128
+        TORCH_INDEX_URL: https://download.pytorch.org/whl/cpu
+    environment:
+      # 容器内必须用服务名而不是 localhost 访问 Milvus / Redis
+      MILVUS_HOST: milvus
+      MILVUS_PORT: "19530"
+      REDIS_ENABLED: "true"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_DB: "1"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-123456}"
+      # 容器默认拿不到 GPU，显式走 CPU（与 config.ini 的 device=cpu 一致）
+      MODEL_DEVICE: cpu
+      # 权限隔离总开关（需求 4.2）；关掉可快速回退到改造前的行为
+      ACCESS_ENABLED: "${ACCESS_ENABLED:-true}"
+    ports:
+      - "8080:8080"
+    volumes:
+      # 模型不打进镜像：bge-m3 与 bge-reranker-large 合计约 4.3GB
+      - ../../models:/app/models:ro
+      # 知识库原文与增量清单需要持久化（build_kb.py 会读写 data/）
+      - ../../data:/app/data
+      - ../../logs:/app/logs
+    depends_on:
+      milvus:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  etcd_data:
+  minio_data:
+  milvus_data:
+  redis_data:

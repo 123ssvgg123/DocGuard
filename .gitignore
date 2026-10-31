@@ -1,0 +1,35 @@
+# IDE
+.idea
+.vscode
+
+# Python
+__pycache__/
+*.pyc
+
+# 虚拟环境
+.venv
+venv/
+env/
+
+# 本地模型（体积大，从参考项目复制，不入库）
+/models/
+
+# 运行日志
+logs/
+*.log
+
+# 环境变量覆盖（含 API Key，不入库）
+.env
+.env.local
+
+# 补丁备份文件
+*.bak_patch
+
+# 临时验证脚本
+_verify_*.py
+
+# 由 build_dataset.py 生成的数据集产物（可从 data/ 一键重建，不入库）
+data/dataset/
+
+# 注意：/data/ 是项目的示例知识库，需要随代码入库，故不忽略。
+#      但其子目录 dataset/ 是构建产物，已被上面单独忽略。

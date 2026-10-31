@@ -1,0 +1,120 @@
+# ============================================================
+# 食品安全知识库系统 · 依赖清单
+# ============================================================
+# 原则：只保留项目代码实际 import 的包，以及它们的运行时必需传递依赖。
+# 版本号锁定为「本机 rag 环境（D:/ruanjian/anaconda/envs/rag）实测可用」的版本，
+# 保证可复现安装。
+#
+# 安装：pip install -r requirements.txt
+#       （torch 需按本机 CUDA 情况单独安装，见文件末尾说明）
+# ============================================================
+
+# ---------- Web 服务（app.py：HTTP 接口 + WebSocket 流式推送）----------
+fastapi==0.115.12
+uvicorn==0.41.0
+websockets==16.0
+
+# ---------- 大模型调用（qa_system.py 调 DeepSeek，OpenAI 兼容接口）----------
+openai==2.24.0
+
+# ---------- 向量库与嵌入（core/vector_store.py）----------
+# pymilvus     提供 MilvusClient / AnnSearchRequest / WeightedRanker；
+# milvus-model 提供 BGEM3EmbeddingFunction，一次编码同时产出 dense + sparse 向量。
+pymilvus==2.5.4
+milvus-model==0.2.5
+
+# ---------- 模型推理与训练 ----------
+# torch / transformers 虽未被业务代码直接 import，但分别是 sentence-transformers
+# （CrossEncoder 重排）与意图分类训练的运行时必需依赖，必须显式锁定版本。
+# torch / numpy / transformers / sentence-transformers 是本项目 import 链上的核心包，
+# 供 core/vector_store.py 的重排与 train_intent.py 的训练使用。
+torch==2.10.0
+transformers==4.45.0
+sentence-transformers==3.0.1
+numpy==2.2.6
+
+# 意图分类训练所需（train_intent.py）：
+#   scikit-learn  指标计算与后续扩展
+#   datasets      数据集加载与缓存（transformers Trainer 生态常用）
+#   accelerate    Trainer 的设备编排依赖
+scikit-learn==1.7.2
+datasets==3.3.1
+accelerate==1.15.0
+
+# ---------- 文档解析（core/loaders.py）----------
+# 需求要求法规（PDF，1500+ 篇）直接入库，pypdf 是纯 Python 实现、无编译依赖。
+# docx / xlsx / csv / json / md / txt 均已在 core/loaders.py 内用标准库兜底实现，
+# **不需要**任何额外依赖；装了 unstructured 系列时会优先使用（见该文件的降级链）。
+# 扫描件 OCR 与复杂版面还原（需求技术栈中的 MinerU）属二期范围，见 docs/REQUIREMENTS.md。
+pypdf>=4.0.0
+
+# ---------- LangChain 文本切分与提示词模板 ----------
+# 实际只用 TextLoader / Document / PromptTemplate / RecursiveCharacterTextSplitter
+# 四个类，故只锁最小子包，不引入 langchain 全家桶。
+langchain-core==1.2.16
+langchain-community==0.4.1
+langchain-text-splitters==1.1.1
+
+# ---------- 配置（base/config.py 读取 .env）----------
+python-dotenv==1.2.2
+
+# ============================================================
+# 已移除的依赖（说明改动痕迹，便于回溯）
+# ============================================================
+# langchain==1.2.10
+#   移除原因：项目只用到 langchain-core / -community / -text-splitters 三个子包，
+#            顶层 langchain 聚合包未被任何代码 import。
+#
+# 之前版本还曾列出过 MySQL / Redis / BM25 缓存、unstructured（OCR）、RAGAS 评估等，
+# 这些模块本项目均未使用，已不在清单内。
+# ============================================================
+
+# ============================================================
+# 关于 torch 的安装说明（重要）
+# ============================================================
+# torch 的构建版本（CUDA / CPU）取决于你的显卡与驱动，不能由 requirements.txt
+# 统一决定，官方要求按 CUDA 版本走独立 index-url 安装。因此：
+#
+#   • 有 NVIDIA 显卡、要用 GPU 训练/推理：
+#     ⚠️ 各 CUDA 源上的 torch 版本并不齐全，2.10.0 只在 cu126 / cu128 / cu130 上有，
+#        cu121 最高 2.5.1、cu124 最高 2.6.0、cu129 最高 2.9.0。
+#        按 torch 版本选源（不要按驱动版本选），实测可用命令：
+#       CUDA 12.6 → pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cu126
+#       CUDA 12.8 → pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cu128  ← 本机用这个
+#       CUDA 13.0 → pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cu130
+#
+#   • 只用 CPU：
+#       pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cpu
+#
+# 装完务必验证：
+#     python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+#     CUDA 版期望输出形如：2.10.0+cu128 True
+#     CPU  版期望输出形如：2.10.0+cpu   False
+#
+# 注意：版本号没有 +cpu 后缀，不代表就是 CUDA 版——务必用上面的命令实测
+#      torch.cuda.is_available()，避免「以为在用 GPU、其实一直跑在 CPU」。
+#
+# 项目代码不依赖具体是哪个构建：base/config.py 的 resolve_device() 会运行时
+# 自动探测（cuda > mps > xpu > cpu），无需改代码即可在有卡的机器上吃到 GPU。
+
+# ============================================================
+# 可选组件（渐进增强，默认全部关闭）
+# ============================================================
+# 与 FoodAgent 一致的设计原则：未安装 / 未开启开关时全部为 no-op，
+# 主流程（检索 → 重排 → 生成 → 拒答）100% 可跑通。故不锁版本。
+# 详细启用步骤见 config.ini 的 [redis] / [ragas] 段注释。
+
+# ---------- Redis 三级缓存 ----------
+# core/cache.py：Embedding / 检索 / 答案三类缓存（L1 进程内 → L2 Redis → L3 回源）。
+# 未装或未开启时自动降级为进程内缓存（单机可用，重启失效）。
+# 启用：pip install redis，并把 config.ini 的 [redis] enabled 改为 true。
+redis>=5.0.0
+
+# ---------- RAGAS 评估（可选）----------
+# scripts/evaluate_ragas.py 用四项指标量化评估 RAG 效果。
+# ⚠️ **未安装也能用**：脚本捕获 ImportError 后自动降级为本地近似打分器
+#    （规则 + 关键词重叠度），可完整跑通并导出 JSON/CSV 报告，
+#    只是分数不等价于 RAGAS 官方口径，仅作趋势参考。
+# 需要精确评估时再解开下面两行：
+# ragas>=0.1.0
+# datasets>=2.14.0
