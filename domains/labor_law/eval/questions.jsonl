@@ -1,0 +1,17 @@
+{"id": "ll-01", "type": "in_domain", "kb_type": "regulation", "question": "试用期最长可以约定多久？", "expect_file": "LAW-劳动合同法-订立与试用期.md", "expect_keywords": ["六个月"]}
+{"id": "ll-02", "type": "in_domain", "kb_type": "regulation", "question": "试用期工资不得低于约定工资的百分之多少？", "expect_file": "LAW-劳动合同法-订立与试用期.md", "expect_keywords": ["百分之八十"]}
+{"id": "ll-03", "type": "in_domain", "kb_type": "regulation", "question": "员工主动辞职需要提前多少天书面通知？", "expect_file": "LAW-劳动合同法-解除与经济补偿.md", "expect_keywords": ["三十日"]}
+{"id": "ll-04", "type": "in_domain", "kb_type": "regulation", "question": "试用期内提出解除劳动合同要提前几天通知？", "expect_file": "LAW-劳动合同法-解除与经济补偿.md", "expect_keywords": ["三日"]}
+{"id": "ll-05", "type": "in_domain", "kb_type": "regulation", "question": "经济补偿按每满一年支付几个月工资计算？", "expect_file": "LAW-劳动合同法-解除与经济补偿.md", "expect_keywords": ["一个月"]}
+{"id": "ll-06", "type": "in_domain", "kb_type": "regulation", "question": "在本单位工作不满六个月的，经济补偿怎么支付？", "expect_file": "LAW-劳动合同法-解除与经济补偿.md", "expect_keywords": ["半个月"]}
+{"id": "ll-07", "type": "in_domain", "kb_type": "regulation", "question": "竞业限制的期限最长不得超过几年？", "expect_file": "LAW-劳动合同法-订立与试用期.md", "expect_keywords": ["二年"]}
+{"id": "ll-08", "type": "in_domain", "kb_type": "regulation", "question": "竞业限制期限内用人单位应当按月支付什么？", "expect_file": "LAW-劳动合同法-订立与试用期.md", "expect_keywords": ["经济补偿"]}
+{"id": "ll-09", "type": "in_domain", "kb_type": "regulation", "question": "超过一个月未订立书面劳动合同要支付几倍工资？", "expect_file": "LAW-劳动合同法-订立与试用期.md", "expect_keywords": ["二倍"]}
+{"id": "ll-10", "type": "in_domain", "kb_type": "regulation", "question": "服务期违约金的上限与什么费用挂钩？", "expect_file": "LAW-劳动合同法-订立与试用期.md", "expect_keywords": ["培训费用"]}
+{"id": "ll-11", "type": "in_domain", "kb_type": "sop", "question": "工作交接单需要哪几方签字？", "expect_file": "HR-SOP-离职办理与工作交接.md", "expect_keywords": ["交接人", "接收人", "监交人"]}
+{"id": "ll-12", "type": "in_domain", "kb_type": "sop", "question": "当年度应休未休年假按日工资的多少支付？", "expect_file": "HR-SOP-离职办理与工作交接.md", "expect_keywords": ["百分之三百"]}
+{"id": "ood-01", "type": "out_of_domain", "kb_type": "regulation", "question": "冷荤间紫外线消毒需要照射多长时间？", "expect_file": null, "expect_keywords": [], "note": "食品安全域问题，劳动法域必须拒答"}
+{"id": "ood-02", "type": "out_of_domain", "kb_type": "regulation", "question": "GB 2760 中苯甲酸在酱油中的最大使用量是多少？", "expect_file": null, "expect_keywords": [], "note": "食品添加剂限值，跨域必拒"}
+{"id": "ood-03", "type": "out_of_domain", "kb_type": "sop", "question": "食品留样应当在什么温度下保存多少小时？", "expect_file": null, "expect_keywords": [], "note": "食安 SOP，跨域必拒"}
+{"id": "ood-04", "type": "out_of_domain", "kb_type": "regulation", "question": "中央厨房冷链配送的车厢温度要求是多少度？", "expect_file": null, "expect_keywords": [], "note": "冷链温控，跨域必拒"}
+{"id": "ood-05", "type": "out_of_domain", "kb_type": "faq", "question": "餐具清洗消毒后的感官检查标准是什么？", "expect_file": null, "expect_keywords": [], "note": "食安操作标准，跨域必拒"}

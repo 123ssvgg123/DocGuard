@@ -1,0 +1,65 @@
+{
+  "domain_id": "labor_law",
+  "display_name": "劳动用工合规",
+  "version": "1.0.0",
+  "status": "cross_validation",
+  "description": "跨领域验证包：用与食品安全完全无关的第二套语料（劳动合同法 / 离职 SOP / 竞业限制案例 / 外包合同 / 用工 FAQ），跑同一套「建库 → 切分 → 召回 → 精排 → 阈值拒答 → 引用溯源」链路。目的不是做一个人力资源产品，而是证明这条链路与领域解耦：换语料即可复用，运行时、检索、拒答、留痕、权限一行不改。",
+  "corpus_dir": "domains/labor_law/corpus",
+  "kb_types": [
+    {
+      "id": "regulation",
+      "label": "劳动法律法规库",
+      "file_prefix": "LAW",
+      "access_level": "public",
+      "department": "general",
+      "separators": ["\n## ", "\n### ", "\n第[一二三四五六七八九十百零]{1,4}条", "\n\n", "\n", "。|！|？"],
+      "child_chunk_size": null
+    },
+    {
+      "id": "sop",
+      "label": "人事流程规范库",
+      "file_prefix": "HR-SOP",
+      "access_level": "internal",
+      "department": "hr",
+      "separators": ["\n## ", "\n### ", "\n[0-9]{1,2}\\．", "\n\n", "\n", "。|！|？"],
+      "child_chunk_size": null
+    },
+    {
+      "id": "case",
+      "label": "劳动争议案例库",
+      "file_prefix": "HR-CASE",
+      "access_level": "internal",
+      "department": "hr",
+      "separators": null,
+      "child_chunk_size": null
+    },
+    {
+      "id": "supplier",
+      "label": "外包合同条款库",
+      "file_prefix": "CT",
+      "access_level": "confidential",
+      "department": "legal",
+      "separators": null,
+      "child_chunk_size": null
+    },
+    {
+      "id": "faq",
+      "label": "用工合规 FAQ",
+      "file_prefix": "HR-FAQ",
+      "access_level": "public",
+      "department": "general",
+      "separators": null,
+      "child_chunk_size": 512
+    }
+  ],
+  "eval": {
+    "golden_set": "domains/labor_law/eval/questions.jsonl",
+    "in_domain": 12,
+    "out_of_domain": 5
+  },
+  "refusal": {
+    "score_threshold": 0.5,
+    "note": "与食品安全域取同一阈值，不做领域特调——若需特调，说明链路没有真正解耦"
+  },
+  "reuse_note": "复用的是链路，不是语料：建库脚本、切分器、检索策略（HyDE / 子查询 / 回溯）、RAGAS 评估、权限过滤、留痕全部沿用 food_safety 的实现。差异性只体现在本文件的 kb_type 边界与语料内容上。"
+}

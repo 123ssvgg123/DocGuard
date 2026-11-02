@@ -34,8 +34,18 @@ from core.access_control import build_acl, acl_summary
 from core.loaders import loader_report
 
 # 创建应用实例
-app = FastAPI(title="食安通 · 食品安全知识库系统",
-              description="基于 RAG 的食品安全法规、SOP、事故处置智能问答服务")
+app = FastAPI(
+    title="DocGuard · 可溯源合规文档问答引擎",
+    description=(
+        "以 RAG 为内核的合规文档问答引擎：只依据原文作答，答不出即拒答并给出可查关键词。\n\n"
+        "- **领域无关链路**：建库 → 父子分块 → 稠密+稀疏混合召回 → 精排 → 阈值拒答 → 引用溯源\n"
+        "- **领域可切换**：`domains/<id>/manifest.json` 声明知识库类型与切分边界，"
+        "当前已跑通食品安全（reference）与劳动用工（cross_validation），运行时零改动\n"
+        "- **拒答优先**：低于阈值直接拒答，不给出无出处的推测；"
+        "跨域验证可离线复现（`scripts/verify_cross_domain.py`，零模型调用）"
+    ),
+    version="2.0.0",
+)
 
 # 配置 CORS，允许前端访问
 app.add_middleware(
@@ -48,6 +58,19 @@ app.add_middleware(
 
 # 全局问答系统实例（进程内单例，避免重复加载模型）
 qa_system = QASystem()
+
+
+@app.get("/api/domains", tags=["领域"])
+def list_domains_api():
+    """
+    领域清单。
+
+    回答"这套引擎现在能答哪些领域、每个领域有哪些知识库"——
+    数据源是 domains/*/manifest.json，不是硬编码，换领域不动代码。
+    """
+    from core.domain import domain_summary
+
+    return {"ok": True, "data": domain_summary()}
 
 # 知识库类型清单（唯一来源在 base/config.py，此处仅做接口格式转换）
 KB_TYPES = [{"key": k, "name": v} for k, v in config.KB_TYPES.items()]

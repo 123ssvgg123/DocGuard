@@ -1,0 +1,14 @@
+{"id": "fs-01", "type": "in_domain", "kb_type": "sop", "question": "留样食品应在什么温度下存放多少小时？", "expect_file": "SOP-CCP02-食品留样管理.md", "expect_keywords": ["0℃", "48 小时"]}
+{"id": "fs-02", "type": "in_domain", "kb_type": "sop", "question": "冷藏食品到货时中心温度不得高于多少度？", "expect_file": "SOP-CCP01-冷链原料到货验收.md", "expect_keywords": ["4℃"]}
+{"id": "fs-03", "type": "in_domain", "kb_type": "sop", "question": "冷冻食品到货中心温度要求是多少？", "expect_file": "SOP-CCP01-冷链原料到货验收.md", "expect_keywords": ["-15℃"]}
+{"id": "fs-04", "type": "in_domain", "kb_type": "sop", "question": "餐具煮沸消毒需要保持多长时间？", "expect_file": "SOP-CCP03-餐具清洗消毒.md", "expect_keywords": ["10 分钟"]}
+{"id": "fs-05", "type": "in_domain", "kb_type": "sop", "question": "红外线消毒的控制温度是多少？", "expect_file": "SOP-CCP03-餐具清洗消毒.md", "expect_keywords": ["120℃"]}
+{"id": "fs-06", "type": "in_domain", "kb_type": "sop", "question": "留样冰箱温度每天记录几次？", "expect_file": "SOP-CCP02-食品留样管理.md", "expect_keywords": ["2 次"]}
+{"id": "fs-07", "type": "in_domain", "kb_type": "sop", "question": "温度计每次使用前后应用多少浓度的酒精消毒？", "expect_file": "SOP-CCP01-冷链原料到货验收.md", "expect_keywords": ["75%"]}
+{"id": "fs-08", "type": "in_domain", "kb_type": "sop", "question": "餐具浸泡时间不少于多久？", "expect_file": "SOP-CCP03-餐具清洗消毒.md", "expect_keywords": ["5 分钟"]}
+{"id": "fs-09", "type": "in_domain", "kb_type": "sop", "question": "留样期满多长时间且无异常后方可处理？", "expect_file": "SOP-CCP02-食品留样管理.md", "expect_keywords": ["48 小时"]}
+{"id": "fs-10", "type": "in_domain", "kb_type": "sop", "question": "消毒柜消毒一般需要保持多少分钟？", "expect_file": "SOP-CCP03-餐具清洗消毒.md", "expect_keywords": ["15 分钟"]}
+{"id": "ood-11", "type": "out_of_domain", "kb_type": "sop", "question": "试用期最长可以约定多久？", "expect_file": null, "expect_keywords": [], "note": "劳动法域问题，食安域必须拒答"}
+{"id": "ood-12", "type": "out_of_domain", "kb_type": "sop", "question": "竞业限制的期限最长不得超过几年？", "expect_file": null, "expect_keywords": [], "note": "劳动法域问题，食安域必须拒答"}
+{"id": "ood-13", "type": "out_of_domain", "kb_type": "sop", "question": "经济补偿按每满一年支付几个月工资计算？", "expect_file": null, "expect_keywords": [], "note": "劳动法域问题，食安域必须拒答"}
+{"id": "ood-14", "type": "out_of_domain", "kb_type": "sop", "question": "未订立书面劳动合同要支付几倍工资？", "expect_file": null, "expect_keywords": [], "note": "劳动法域问题，食安域必须拒答"}

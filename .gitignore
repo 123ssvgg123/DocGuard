@@ -22,9 +22,6 @@ logs/
 .env
 .env.local
 
-# 补丁备份文件
-*.bak_patch
-
 # 临时验证脚本
 _verify_*.py
 
@@ -33,3 +30,7 @@ data/dataset/
 
 # 注意：/data/ 是项目的示例知识库，需要随代码入库，故不忽略。
 #      但其子目录 dataset/ 是构建产物，已被上面单独忽略。
+
+# 历史补丁残留与临时文件
+*.bak_patch
+1.2.2

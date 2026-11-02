@@ -1,0 +1,74 @@
+{
+  "domain_id": "food_safety",
+  "display_name": "食品安全合规",
+  "version": "1.0.0",
+  "status": "reference",
+  "description": "主领域能力包：法规标准 / SOP / 事故案例 / 营养学 / 供应商资质 / FAQ 六类知识库。该领域被选为 reference，是因为它的答案必须能追到条款：GB 2760 的限值、SOP 的步骤顺序、事故案例的处置动作，任一处编造都构成合规风险，正好把「只依据原文作答、答不出即拒答」这条链路压到极限。",
+  "corpus_dir": "data",
+  "kb_types": [
+    {
+      "id": "regulation",
+      "label": "法规标准库",
+      "file_prefix": "GB",
+      "access_level": "public",
+      "department": "general",
+      "separators": null,
+      "child_chunk_size": null
+    },
+    {
+      "id": "sop",
+      "label": "SOP 规范库",
+      "file_prefix": "SOP",
+      "access_level": "internal",
+      "department": "kitchen",
+      "separators": null,
+      "child_chunk_size": null
+    },
+    {
+      "id": "case",
+      "label": "事故处置案例库",
+      "file_prefix": "CASE",
+      "access_level": "internal",
+      "department": "qa",
+      "separators": null,
+      "child_chunk_size": null
+    },
+    {
+      "id": "nutrition",
+      "label": "营养学知识库",
+      "file_prefix": "",
+      "access_level": "public",
+      "department": "general",
+      "separators": null,
+      "child_chunk_size": null
+    },
+    {
+      "id": "supplier",
+      "label": "供应商资质库",
+      "file_prefix": "QC-SUP",
+      "access_level": "confidential",
+      "department": "purchase",
+      "separators": null,
+      "child_chunk_size": null
+    },
+    {
+      "id": "faq",
+      "label": "FAQ 问答库",
+      "file_prefix": "",
+      "access_level": "public",
+      "department": "general",
+      "separators": null,
+      "child_chunk_size": null
+    }
+  ],
+  "eval": {
+    "golden_set": "domains/food_safety/eval/questions.jsonl",
+    "in_domain": 10,
+    "out_of_domain": 4
+  },
+  "refusal": {
+    "score_threshold": 0.5,
+    "note": "BGE-Reranker 输出 0~1 相关性分数；低于阈值视为无依据，直接拒答并给出可查关键词"
+  },
+  "reuse_note": "该领域的 manifest 不覆盖任何切分参数（separators 全为 null），全部回落到 core/text_splitter.py 的内置映射——改造前后行为完全一致，这是「加领域层不改老行为」的验证点。"
+}

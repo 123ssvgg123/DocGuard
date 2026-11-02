@@ -187,9 +187,45 @@ CHILD_CHUNK_SIZE_OVERRIDE = {
 }
 
 
-def get_parent_splitter(kb_type: str):
-    """按知识库类型取父块切分器（保留结构，块较大）"""
-    separators = KB_SEPARATOR_MAP.get(kb_type, DEFAULT_SEPARATORS)
+# ==================== 领域层覆盖 ====================
+# domains/<id>/manifest.json 可以按 kb_type 声明自己的分隔符与子块大小。
+# 未声明时返回 None，调用方回落到上面的内置映射——所以不写 manifest 也照旧工作。
+try:
+    from core import domain as _domain_registry
+except Exception:  # noqa: BLE001 - 领域层缺失不应影响切分
+    _domain_registry = None
+
+
+def _domain_separators(kb_type: str, domain=None):
+    """取领域声明的分隔符；未声明或领域层不可用返回 None。"""
+    if _domain_registry is None:
+        return None
+    try:
+        return _domain_registry.separators_for(kb_type, domain)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _domain_child_size(kb_type: str, domain=None):
+    """取领域声明的子块大小；未声明或领域层不可用返回 None。"""
+    if _domain_registry is None:
+        return None
+    try:
+        return _domain_registry.child_chunk_size_for(kb_type, domain)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def get_parent_splitter(kb_type: str, domain=None):
+    """
+    按知识库类型取父块切分器（保留结构，块较大）。
+
+    分隔符解析顺序：领域 manifest 声明 → 内置 KB_SEPARATOR_MAP → 通用默认。
+    领域层放在最前面，是为了让「劳动法域按条切」这类边界规则可以只在
+    domains/<id>/manifest.json 里声明，不必改这份文件。
+    """
+    separators = _domain_separators(kb_type, domain) or KB_SEPARATOR_MAP.get(
+        kb_type, DEFAULT_SEPARATORS)
     return ChineseRecursiveTextSplitter(
         separators=separators,
         chunk_size=config.PARENT_CHUNK_SIZE,
@@ -198,10 +234,12 @@ def get_parent_splitter(kb_type: str):
     )
 
 
-def get_child_splitter(kb_type: str):
+def get_child_splitter(kb_type: str, domain=None):
     """按知识库类型取子块切分器（块较小，用于精准向量检索）"""
-    separators = KB_SEPARATOR_MAP.get(kb_type, DEFAULT_SEPARATORS)
-    chunk_size = CHILD_CHUNK_SIZE_OVERRIDE.get(kb_type, config.CHILD_CHUNK_SIZE)
+    separators = _domain_separators(kb_type, domain) or KB_SEPARATOR_MAP.get(
+        kb_type, DEFAULT_SEPARATORS)
+    chunk_size = (_domain_child_size(kb_type, domain)
+                  or CHILD_CHUNK_SIZE_OVERRIDE.get(kb_type, config.CHILD_CHUNK_SIZE))
     return ChineseRecursiveTextSplitter(
         separators=separators,
         chunk_size=chunk_size,
